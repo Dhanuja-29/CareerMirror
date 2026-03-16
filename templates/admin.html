@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — CareerMirror{% endblock %}
+
+{% block content %}
+<div class="admin-wrap">
+  <div class="admin-header">
+    <div class="section-label">Administrator</div>
+    <h1 class="section-title">Review Moderation</h1>
+    <p class="section-sub">Approve genuine reviews and remove fake or abusive content.</p>
+  </div>
+
+  <!-- PENDING -->
+  <section class="admin-section">
+    <h2 class="admin-section-title">
+      ⏳ Pending Approval
+      <span class="admin-badge">{{ pending|length }}</span>
+    </h2>
+
+    {% if pending %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Rating</th>
+            <th>Review</th>
+            <th>Role</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in pending %}
+          <tr>
+            <td><strong>{{ r.company.name }}</strong></td>
+            <td><span class="tbl-stars">{% for i in range(r.rating) %}★{% endfor %}</span></td>
+            <td class="review-cell">{{ r.review_text[:120] }}{% if r.review_text|length > 120 %}…{% endif %}</td>
+            <td>{{ r.role or '–' }}</td>
+            <td>{{ r.created_at.strftime('%d %b %Y') }}</td>
+            <td class="action-cell">
+              <a href="{{ url_for('approve_review', review_id=r.id) }}" class="btn-approve">✓ Approve</a>
+              <a href="{{ url_for('delete_review', review_id=r.id) }}" class="btn-delete"
+                 onclick="return confirm('Delete this review permanently?')">✕ Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:2rem">
+      <div class="empty-icon">✅</div>
+      <div class="empty-title">All caught up!</div>
+      <div class="empty-sub">No reviews pending approval.</div>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- APPROVED -->
+  <section class="admin-section" style="margin-top:3rem">
+    <h2 class="admin-section-title">
+      ✅ Approved Reviews
+      <span class="admin-badge admin-badge-green">{{ approved|length }}</span>
+    </h2>
+
+    {% if approved %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Rating</th>
+            <th>Review</th>
+            <th>Role</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in approved %}
+          <tr>
+            <td><strong>{{ r.company.name }}</strong></td>
+            <td><span class="tbl-stars">{% for i in range(r.rating) %}★{% endfor %}</span></td>
+            <td class="review-cell">{{ r.review_text[:120] }}{% if r.review_text|length > 120 %}…{% endif %}</td>
+            <td>{{ r.role or '–' }}</td>
+            <td>{{ r.created_at.strftime('%d %b %Y') }}</td>
+            <td class="action-cell">
+              <a href="{{ url_for('delete_review', review_id=r.id) }}" class="btn-delete"
+                 onclick="return confirm('Delete this review permanently?')">✕ Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:2rem">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No approved reviews yet.</div>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

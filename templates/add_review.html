@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Review {{ company.name }} — CareerMirror{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card" style="max-width:560px">
+    <a href="{{ url_for('company_profile', company_id=company.id) }}" class="back-link">← Back to {{ company.name }}</a>
+    <h1 class="auth-title" style="margin-top:1rem">Write a Review</h1>
+    <p class="auth-sub">Sharing your experience at <strong>{{ company.name }}</strong>.</p>
+
+    <form method="POST" action="{{ url_for('add_review', company_id=company.id) }}" class="auth-form">
+
+      <!-- Star Rating -->
+      <div class="form-group">
+        <label>Your Rating</label>
+        <div class="star-selector" id="starSelector">
+          {% for i in range(1,6) %}
+          <button type="button" class="star-btn" data-r="{{ i }}" onclick="setRating({{ i }})">★</button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="rating" id="ratingInput" required>
+        <div class="rating-hint" id="ratingHint">Click a star to rate</div>
+      </div>
+
+      <div class="form-group">
+        <label for="review_text">Your Review</label>
+        <textarea id="review_text" name="review_text" rows="5"
+                  placeholder="Describe your experience: culture, management, salary, growth opportunities…"
+                  required minlength="20"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Your Role <span style="font-weight:400;color:var(--mist)">(optional)</span></label>
+        <input type="text" id="role" name="role" placeholder="e.g. Software Engineer, Marketing Lead">
+      </div>
+
+      <button type="submit" class="form-submit" id="submitBtn" disabled>Submit Review</button>
+      <p class="form-note">✅ Reviews are reviewed by our admin team before publishing.</p>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const labels = ['','Poor','Fair','Good','Very Good','Excellent'];
+function setRating(n) {
+  document.getElementById('ratingInput').value = n;
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('ratingHint').textContent = labels[n] + ' (' + n + '/5)';
+  document.getElementById('ratingHint').style.color = 'var(--gold)';
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    const r = parseInt(btn.dataset.r);
+    btn.style.color = r <= n ? 'var(--gold)' : 'var(--cream)';
+  });
+}
+</script>
+{% endblock %}

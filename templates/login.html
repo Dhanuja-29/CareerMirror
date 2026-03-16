@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Log In — CareerMirror{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">Career<span>Mirror</span></div>
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-sub">Log in to view and post company reviews.</p>
+
+    <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Your password" required>
+      </div>
+      <button type="submit" class="form-submit">Log In</button>
+    </form>
+
+    <div class="auth-switch">
+      Don't have an account?
+      <a href="{{ url_for('register') }}">Sign up free</a>
+    </div>
+  </div>
+
+  <div class="auth-side">
+    <div class="auth-quote">"Honest reviews from real employees. That's what CareerMirror delivers."</div>
+    <div class="auth-quote-author">— Product Manager, Chennai</div>
+  </div>
+</div>
+{% endblock %}

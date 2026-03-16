@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ company.name }} Reviews — CareerMirror{% endblock %}
+
+{% block content %}
+<div class="company-hero">
+  <div class="company-hero-inner">
+    <div class="company-logo-big">🏢</div>
+    <div class="company-info">
+      <div class="company-industry-tag">{{ company.industry }}</div>
+      <h1 class="company-big-name">{{ company.name }}</h1>
+      <div class="company-meta">
+        <span>📍 {{ company.location }}</span>
+        <span>·</span>
+        <span>{{ company.review_count }} review{{ 's' if company.review_count != 1 }}</span>
+        {% if company.avg_rating %}
+        <span>·</span>
+        <span class="company-rating-inline">★ {{ company.avg_rating }} / 5</span>
+        {% endif %}
+      </div>
+    </div>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('add_review', company_id=company.id) }}" class="btn-hero" style="margin-left:auto">
+      ✍️ Write a Review
+    </a>
+    {% else %}
+    <a href="{{ url_for('login') }}" class="btn-hero-ghost" style="margin-left:auto">
+      Log In to Review
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="company-body">
+
+  <!-- RATING SUMMARY -->
+  {% if company.avg_rating %}
+  <div class="rating-summary-card">
+    <div class="rating-big-num">{{ company.avg_rating }}</div>
+    <div class="rating-stars-big">
+      {% for i in range(1,6) %}
+        {% if i <= company.avg_rating|int %}★{% else %}☆{% endif %}
+      {% endfor %}
+    </div>
+    <div class="rating-count">Based on {{ company.review_count }} review{{ 's' if company.review_count != 1 }}</div>
+  </div>
+  {% endif %}
+
+  <!-- REVIEWS LIST -->
+  <h2 class="reviews-heading">Employee Reviews</h2>
+
+  {% if reviews %}
+  <div class="reviews-list">
+    {% for review in reviews %}
+    <div class="review-card reveal">
+      <div class="review-header">
+        <div class="review-stars">
+          {% for i in range(1,6) %}
+            <span class="{% if i <= review.rating %}star-filled{% else %}star-empty{% endif %}">★</span>
+          {% endfor %}
+        </div>
+        <div class="review-meta">
+          {% if review.role %}<span class="review-role">{{ review.role }}</span>{% endif %}
+          <span class="review-date">{{ review.created_at.strftime('%b %Y') }}</span>
+        </div>
+      </div>
+      <div class="review-body">{{ review.review_text }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📝</div>
+    <div class="empty-title">No approved reviews yet</div>
+    <div class="empty-sub">Be the first to share your experience at {{ company.name }}.</div>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('add_review', company_id=company.id) }}" class="btn-hero" style="margin-top:1.5rem;display:inline-block">Write a Review</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}CareerMirror — See the Truth Behind Every Job{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Glassdoor for the modern era</div>
+    <h1 class="hero-title">
+      See the <em>truth</em><br>behind every job
+    </h1>
+    <p class="hero-sub">
+      CareerMirror is a Flask + PostgreSQL powered platform where employees share honest reviews, rate culture &amp; management, and help you make smarter career decisions.
+    </p>
+    {% if not current_user.is_authenticated %}
+    <div class="hero-actions">
+      <a href="{{ url_for('register') }}" class="btn-hero">Get Started</a>
+      <a href="#companies" class="btn-hero-ghost">Browse Companies</a>
+    </div>
+    {% else %}
+    <div class="hero-actions">
+      <a href="#companies" class="btn-hero">Browse Companies</a>
+    </div>
+    {% endif %}
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="statReviews">0<span>+</span></div>
+        <div class="stat-label">Reviews</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">{{ companies|length }}<span>+</span></div>
+        <div class="stat-label">Companies</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-label">Verified</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right" aria-hidden="true">
+    <div class="floating-card card-main">
+      <div class="card-co-name">ZenCode Labs</div>
+      <div class="card-co-loc">📍 Hyderabad · Product</div>
+      <div class="stars">★★★★★</div>
+      <div class="card-review-text">"Great work-life balance, supportive management, and real growth opportunities. Pay is very competitive."</div>
+      <div class="card-reviewer">— Senior Engineer · 3 yrs exp</div>
+    </div>
+    <div class="floating-card card-mini">
+      <div class="rating-big">4.7</div>
+      <div class="stars" style="font-size:.75rem">★★★★★</div>
+      <div class="rating-label">Culture Score</div>
+    </div>
+    <div class="floating-card card-badge">
+      <div class="badge-pill">Trending</div>
+      <div class="badge-text">42 new reviews this week</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MARQUEE ── -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track">
+    {% set items = ["Register","Search Companies","Write Reviews","Rate Culture","Rate Salary","Rate Management","View Insights","Admin Moderation","PostgreSQL Backend","Flask + Jinja2"] %}
+    {% for item in items %}<span class="marquee-item">{{ item }} <span class="marquee-dot">◆</span></span>{% endfor %}
+    {% for item in items %}<span class="marquee-item">{{ item }} <span class="marquee-dot">◆</span></span>{% endfor %}
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="section" id="how">
+  <div class="section-label">Application Workflow</div>
+  <h2 class="section-title">How CareerMirror Works</h2>
+  <p class="section-sub">A seamless client–server–database architecture powers every step.</p>
+  <div class="steps-grid">
+    {% set steps = [
+      ("👤","Create Account","Register with name, email & password — stored securely in PostgreSQL via bcrypt hashing."),
+      ("🔍","Search Companies","Browse by name, location, or industry using Flask's dynamic query routes."),
+      ("✍️","Write a Review","Submit detailed reviews covering culture, salary, and management through a POST form."),
+      ("⭐","Rate & Read","View aggregated ratings and honest reviews on every company's profile page."),
+      ("🛡️","Admin Moderation","Admins approve genuine reviews and delete fake content to keep the platform trustworthy.")
+    ] %}
+    {% for icon, title, desc in steps %}
+    <div class="step-card reveal">
+      <div class="step-num">0{{ loop.index }}</div>
+      <div class="step-icon">{{ icon }}</div>
+      <div class="step-title">{{ title }}</div>
+      <div class="step-desc">{{ desc }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ── COMPANIES ── -->
+<section class="companies-section" id="companies">
+  <div class="section-label">Explore</div>
+  <h2 class="section-title">Featured Companies</h2>
+  <p class="section-sub">Browse honest reviews from real employees across industries.</p>
+
+  <!-- Search / filter form (GET to /) -->
+  <form method="GET" action="{{ url_for('home') }}#companies" class="search-form">
+    <div class="search-wrap">
+      <input type="text" name="q" class="search-input"
+             placeholder="Search by company name or location…"
+             value="{{ q }}">
+      <select name="industry" class="search-select">
+        <option value="">All Industries</option>
+        {% for ind in industries %}
+        <option value="{{ ind }}" {% if ind == selected_industry %}selected{% endif %}>{{ ind }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="search-btn">Search</button>
+    </div>
+  </form>
+
+  {% if companies %}
+  <div class="companies-grid">
+    {% set logos = ["🖥️","💊","💰","📺","🚚","⚡","🏦","🎓","🌿","🔬"] %}
+    {% for company in companies %}
+    <div class="company-card reveal">
+      <div class="co-header">
+        <div class="co-logo">{{ logos[loop.index0 % logos|length] }}</div>
+        <div>
+          <div class="co-name">{{ company.name }}</div>
+          <div class="co-industry">{{ company.industry }} · {{ company.location }}</div>
+        </div>
+      </div>
+      <div class="co-stats">
+        <div class="co-stat">
+          <div class="co-stat-val gold">
+            {% if company.avg_rating %}{{ company.avg_rating }}{% else %}–{% endif %}
+          </div>
+          <div class="co-stat-lbl">Rating</div>
+        </div>
+        <div class="co-stat">
+          <div class="co-stat-val">{{ company.review_count }}</div>
+          <div class="co-stat-lbl">Reviews</div>
+        </div>
+      </div>
+      <div class="co-tags">
+        <span class="co-tag">{{ company.industry }}</span>
+        <span class="co-tag">{{ company.location }}</span>
+      </div>
+      <div class="co-actions">
+        <a href="{{ url_for('company_profile', company_id=company.id) }}" class="co-view-btn">View Reviews</a>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('add_review', company_id=company.id) }}" class="co-review-btn">Write a Review</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="co-review-btn">Log In to Review</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-title">No companies found</div>
+    <div class="empty-sub">Try a different search term or clear the filter.</div>
+    <a href="{{ url_for('home') }}" class="btn-hero" style="margin-top:1.5rem;display:inline-block">Clear Search</a>
+  </div>
+  {% endif %}
+</section>
+
+<!-- ── CTA ── -->
+{% if not current_user.is_authenticated %}
+<section class="cta-section">
+  <h2 class="cta-title">Ready to share<br><em>your experience?</em></h2>
+  <p class="cta-sub">Join thousands of employees helping others make smarter career decisions.</p>
+  <a href="{{ url_for('register') }}" class="btn-cta">Create Your Account</a>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Animate stat counter
+  const el = document.getElementById('statReviews');
+  let count = 0;
+  const target = {{ companies | sum(attribute='review_count') }} || 12000;
+  const step = Math.ceil(target / 60);
+  const timer = setInterval(() => {
+    count = Math.min(count + step, target);
+    el.innerHTML = count.toLocaleString() + '<span>+</span>';
+    if (count >= target) clearInterval(timer);
+  }, 30);
+</script>
+{% endblock %}
